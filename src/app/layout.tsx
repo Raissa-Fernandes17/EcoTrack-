@@ -10,9 +10,23 @@ export default function RootLayout() {
       
       {/* Gerencia a pilha de navegação das páginas dentro de src/app */}
       <Stack>
-        {/* Define a tela index.tsx como a principal e remove a barra de topo padrão */}
+        {/* Tela de Entrada: Login */}
         <Stack.Screen 
           name="index" 
+          options={{ 
+            headerShown: false 
+          }} 
+        />
+        {/* Tela de Monitoramento e Sensores */}
+        <Stack.Screen 
+          name="telemetria" 
+          options={{ 
+            headerShown: false 
+          }} 
+        />
+        {/* Tela de Cadastro de Descarte e Histórico SQLite */}
+        <Stack.Screen 
+          name="registro" 
           options={{ 
             headerShown: false 
           }} 
