@@ -1,56 +1,86 @@
-# Welcome to your Expo app 👋
+# 🌱 EcoTrack - Rastreador de Reciclagem e Descarte Coletivo
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+## 📌 Identificação do Projeto
+* **Curso:** Habilitação Profissional Técnica de Nível Médio em Desenvolvimento de Sistemas
+* **Unidade Curricular:** Programação para Dispositivos Móveis (PPDM)
+* **Instituição:** SENAI-SP
+* **Equipe:** [Adicione os Nomes dos Integrantes Aqui]
+* **Turma:** [Adicione a sua Turma Aqui]
 
-## Get started
+---
 
-1. Install dependencies
+## 🔎 Problema e Solução
+* **Problema:** A falta de triagem adequada e o desconhecimento dos pontos exatos onde materiais recicláveis pesados são descartados dificultam a coleta eficiente pelas cooperativas locais.
+* **Solução:** O **EcoTrack** é uma solução móvel que permite registrar pontos exatos de descarte reciclável de forma offline. O usuário captura a foto do lote, insere o peso estimado, armazena a localização exata por GPS e utiliza o acelerômetro para monitorar o status do dispositivo em tempo real durante o percurso de triagem.
 
-   ```bash
-   npm install
-   ```
+---
 
-2. Start the app
+## 🖼️ Seção Visual (Prototipagem UI/UX & App em Execução)
 
-   ```bash
-   npx expo start
-   ```
+> 💡 *Nota para a avaliação:* As imagens abaixo devem ser salvas na pasta `/docs` do repositório para a renderização correta na página principal do GitHub.
 
-In the output, you'll find options to open the app in a
+### 📐 Pilar 1: Wireframe Inicial (Figma)
+![Wireframe Figma](./docs/wireframe-figma.png)
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+### 📲 Pilar 2: Capturas de Tela do Aplicativo Funcionando
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+| ☀️ Modo Claro (Light Mode) | 🌙 Modo Escuro (Dark Mode) |
+| :---: | :---: |
+| ![Tela Light](./docs/tela-light-mode.png) | ![Tela Dark](./docs/tela-dark-mode.png) |
 
-## Get a fresh project
+---
 
-When you're ready, run:
+## 📊 Modelagem de Dados & Arquitetura Técnica
 
-```bash
-npm run reset-project
+### 1. Persistência Chave-Valor (`AsyncStorage`)
+Utilizado para armazenar as preferências locais de configuração e estado inicial do perfil:
+* **Chave:** `@ecotrack:theme_preference` -> Armazena a preferência de tema do aplicativo (`'light'` ou `'dark'`).
+* **Chave:** `@ecotrack:user_name` -> Grava o nome do usuário cadastrado para personalização da interface.
+
+### 2. Banco de Dados Relacional Local (`SQLite`)
+Tabela principal utilizada para gerenciar as operações completas de **CRUD** de forma assíncrona:
+
+```sql
+CREATE TABLE IF NOT EXISTS descartes (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  material TEXT NOT NULL,
+  peso_gramas INTEGER NOT NULL,
+  observacao TEXT,
+  latitude REAL NOT NULL,
+  longitude REAL NOT NULL,
+  status_movimento TEXT NOT NULL,
+  imagem_uri TEXT,
+  data_hora TEXT NOT NULL,
+  status TEXT NOT NULL
+);
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+### 3. Integração de Sensores Nativo
+* **Geolocalização (`expo-location`):** Captura a latitude e longitude precisas no momento em que o registro ecológico é criado.
+* **Acelerômetro (`expo-sensors`):** Monitoramento contínuo em tempo real utilizando o cálculo da magnitude vetorial:
+  \[A = \sqrt{x^2 + y^2 + z^2}\]
+  * Regra de Negócio: Se A > 1.6g, o sistema detecta movimentação brusca/percurso ativo (`♻️ Coleta em Movimento`). Caso contrário, assume estabilidade no ponto (`🟢 Dispositivo Estável`).
+* **Câmera (`expo-image-picker`):** Captura a imagem real do lote reciclável e armazena de forma performática a referência da `imagem_uri` no SQLite.
+* **Notificação Local (`expo-notifications`):** Agenda um alerta local configurado com alta prioridade para disparar exatamente 5 segundos após a inserção bem-sucedida de um registro.
 
-### Other setup steps
+---
 
-- To set up ESLint for linting, run `npx expo lint`, or follow our guide on ["Using ESLint and Prettier"](https://docs.expo.dev/guides/using-eslint/)
-- If you'd like to set up unit testing, follow our guide on ["Unit Testing with Jest"](https://docs.expo.dev/develop/unit-testing/)
-- Learn more about the TypeScript setup in this template in our guide on ["Using TypeScript"](https://docs.expo.dev/guides/typescript/)
+## 🚀 Manual de Instalação e Execução Técnica
 
-## Learn more
+Siga as instruções abaixo no terminal para rodar o projeto localmente:
 
-To learn more about developing your project with Expo, look at the following resources:
+```bash
+# 1. Clone o repositório do projeto
+git clone https://github.com
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+# 2. Acesse a pasta raiz criada
+cd NOME_DO_REPOSITORIO
 
-## Join the community
+# 3. Instale as dependências estruturais do ecossistema Expo SDK 57
+npm install
 
-Join our community of developers creating universal apps.
+# 4. Inicie o servidor do Expo utilizando o modo obrigatório TUNNEL
+npx expo start --tunnel
+```
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+⚠️ **Atenção Técnica Crítica:** Escaneie o QR Code gerado na tela utilizando o aplicativo **Expo Go** em seu smartphone físico Android ou iOS. Não utilize a execução web (`--web`), pois recursos nativos de SQLite e Sensores de Hardware exigem o ecossistema mobile real para funcionar sem exceções.
