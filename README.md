@@ -1,56 +1,95 @@
-# Welcome to your Expo app 👋
+# ♻️ Rastreador de Reciclagem
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+### 👥 Identificação da Equipe
+* **Integrante 1:** Raissa dos Santos Fernandes - RM: 2391
+* **Integrante 2:** Beatriz Tacahashi Korekane - RM: 3147
+* **Integrante 3:** Maria Fernanda Bighi Siqueira - RM: 2610
+* **Turma:** [3°EM - DEV2]
+* **Instituição:** SENAI
 
-## Get started
+---
 
-1. Install dependencies
+### 🎯 Problema & Solução
 
+#### O Problema
+A falta de mapeamento e descarte incorreto de resíduos recicláveis gera poluição urbana e sobrecarrega aterros sanitários. Muitas vezes, cidadãos e cooperativas encontram pontos de descarte irregular ou necessitam registrar coletas de forma rápida, mas não possuem uma ferramenta ágil para registrar a localização, a situação visual do descarte e a movimentação envolvida na coleta.
+
+#### A Solução
+O **Rastreador de Reciclagem** é um aplicativo mobile que funciona de forma 100% offline, permitindo que fiscais ou cidadãos registrem pontos de coleta de recicláveis. O aplicativo captura o nome do operador, o registro visual (foto) do local, as coordenadas geográficas exatas (GPS) e a vibração/impacto do transporte no momento do descarte.
+
+#### Público-Alvo
+* Fiscais ambientais e cooperativas de reciclagem.
+* Cidadãos engajados na coleta seletiva urbana.
+
+---
+
+### 🖼️ Seção Visual (Wireframes & Screenshots)
+
+#### 🎨 Prototipagem de Interface (Figma)
+*Imagens geradas de acordo com as diretrizes de Design System Light/Dark.*
+
+| Tema Claro (Light Mode) | Tema Escuro (Dark Mode) |
+| :---: | :---: |
+| ![Figma Light](./docs/figma-light.png) | ![Figma Dark](./docs/figma-dark.png) |
+
+#### 📱 Aplicativo em Execução (Screenshots)
+*Capturas de tela reais do aplicativo rodando no smartphone/simulador demonstrando a persistência e leitura dos sensores.*
+
+| Interface em Modo Claro | Interface em Modo Escuro | Lista com Registros Salvos |
+| :---: | :---: | :---: |
+| ![App Light](./docs/tela-light-mode.png) | ![App Dark](./docs/tela-dark-mode.png) | ![App Registros](./docs/tela-registros.png) |
+
+---
+
+### 💾 Modelagem de Dados & Arquitetura
+
+#### 1. Banco de Dados Relacional (SQLite Assíncrono)
+Os pontos de reciclagem registrados são armazenados localmente na tabela `registros` utilizando a API moderna do `expo-sqlite` com a seguinte estrutura:
+
+| Campo | Tipo | Descrição |
+| :--- | :--- | :--- |
+| `id` | INTEGER PRIMARY KEY AUTOINCREMENT | Identificador único do registro de descarte. |
+| `user_name` | TEXT | Nome do usuário/fiscal que registrou a coleta. |
+| `image_uri` | TEXT | Caminho/URI local da foto tirada do material. |
+| `latitude` | REAL | Coordenada de Latitude obtida via `expo-location`. |
+| `longitude` | REAL | Coordenada de Longitude obtida via `expo-location`. |
+| `aceleracao` | REAL | Força de aceleração calculada pelo sensor de movimento. |
+
+#### 2. Persistência Chave-Valor (AsyncStorage)
+Utilizado para salvar as preferências de ambiente e perfil do usuário de forma global:
+* `@meuapp:theme`: Armazena a string `'light'` ou `'dark'` para manter o tema escolhido pelo usuário.
+* `@meuapp:user_name`: Guarda o nome do usuário padrão para evitar digitação repetida a cada novo descarte.
+
+#### 3. Regra de Negócio & Sensor de Movimento (Acelerômetro)
+O aplicativo utiliza a biblioteca `expo-sensors` para capturar a movimentação tridimensional do smartphone no momento exato do descarte de resíduos. Para transformar as forças físicas dos eixos `X`, `Y` e `Z` em um valor único vetorial de aceleração linear, é aplicada a seguinte **fórmula matemática**:
+
+\[A = \sqrt{x^2+y^2+z^2}\]
+
+O valor resultante A (em m/s²) avalia se o registro foi feito com o celular estático ou em movimento (ex: dentro de um caminhão de coleta).
+
+---
+
+### 🚀 Manual de Instalação e Execução
+
+Para clonar o repositório e rodar o projeto localmente com suporte ao túnel do Expo Go, siga os passos abaixo:
+
+1. **Clonar o Repositório:**
+   ```bash
+   git clone [URL_DO_SEU_REPOSITORIO_AQUI]
+   cd meu-app-senai
+   ```
+
+2. **Instalar as Dependências:**
    ```bash
    npm install
    ```
 
-2. Start the app
-
+3. **Iniciar o Aplicativo com Expo Tunnel:**
+   Certifique-se de ter o aplicativo **Expo Go** instalado no seu celular e execute o comando:
    ```bash
-   npx expo start
+   npx expo start --tunnel
    ```
 
-In the output, you'll find options to open the app in a
+4. **Acessar o App:**
+   Escaneie o **QR Code** exibido no terminal utilizando a câmera do celular (iOS) ou o aplicativo Expo Go (Android).
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
-
-```bash
-npm run reset-project
-```
-
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
-
-### Other setup steps
-
-- To set up ESLint for linting, run `npx expo lint`, or follow our guide on ["Using ESLint and Prettier"](https://docs.expo.dev/guides/using-eslint/)
-- If you'd like to set up unit testing, follow our guide on ["Unit Testing with Jest"](https://docs.expo.dev/develop/unit-testing/)
-- Learn more about the TypeScript setup in this template in our guide on ["Using TypeScript"](https://docs.expo.dev/guides/typescript/)
-
-## Learn more
-
-To learn more about developing your project with Expo, look at the following resources:
-
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
-
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
