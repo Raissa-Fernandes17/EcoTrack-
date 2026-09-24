@@ -8,6 +8,8 @@ import {
   ScrollView,
   StyleSheet,
   TouchableOpacity,
+  Image,
+  Alert,
 } from 'react-native';
 
 import { useRouter } from 'expo-router';
@@ -24,6 +26,7 @@ export default function Telemetria() {
   const [loading, setLoading] = useState(true);
   const [nomeUsuario, setNomeUsuario] = useState('EcoCidadão');
   const [isDarkMode, setIsDarkMode] = useState(false);
+
   const [location, setLocation] =
     useState<Location.LocationObject | null>(null);
 
@@ -32,11 +35,11 @@ export default function Telemetria() {
   );
 
   useEffect(() => {
-    let acelerometroSubscription: { remove: () => void } | null = null;
+    let accelerometerSubscription: any;
 
     async function initTelemetria() {
       try {
-        // Recuperar tema salvo
+        // Carregar tema salvo
         const savedTheme = await AsyncStorage.getItem(
           STORAGE_THEME_KEY
         );
@@ -45,7 +48,7 @@ export default function Telemetria() {
           setIsDarkMode(savedTheme === 'dark');
         }
 
-        // Recuperar nome salvo
+        // Carregar nome do usuário
         const savedUser = await AsyncStorage.getItem(
           STORAGE_USER_KEY
         );
@@ -66,12 +69,12 @@ export default function Telemetria() {
         // Ativar acelerômetro
         Accelerometer.setUpdateInterval(500);
 
-        acelerometroSubscription = Accelerometer.addListener(
-          (data) => {
+        accelerometerSubscription =
+          Accelerometer.addListener((data) => {
             const mag = Math.sqrt(
               data.x * data.x +
-                data.y * data.y +
-                data.z * data.z
+              data.y * data.y +
+              data.z * data.z
             );
 
             if (mag > 1.6) {
@@ -83,8 +86,7 @@ export default function Telemetria() {
                 '📍 Celular Estável (Aguardando ação no Ecoponto)'
               );
             }
-          }
-        );
+          });
       } catch (e) {
         console.error('Erro na telemetria:', e);
       } finally {
@@ -94,10 +96,9 @@ export default function Telemetria() {
 
     initTelemetria();
 
-    // Remover listener quando sair da tela
     return () => {
-      if (acelerometroSubscription) {
-        acelerometroSubscription.remove();
+      if (accelerometerSubscription) {
+        accelerometerSubscription.remove();
       }
     };
   }, []);
@@ -109,6 +110,20 @@ export default function Telemetria() {
       STORAGE_THEME_KEY,
       val ? 'dark' : 'light'
     );
+  }
+
+  // VOLTAR PARA A TELA DE LOGIN
+  async function handleLogout() {
+    try {
+      await AsyncStorage.removeItem(STORAGE_USER_KEY);
+
+      router.replace('/');
+    } catch (e) {
+      Alert.alert(
+        'Erro',
+        'Não foi possível voltar para a tela de login.'
+      );
+    }
   }
 
   if (loading) {
@@ -134,6 +149,7 @@ export default function Telemetria() {
       ]}
       contentContainerStyle={styles.container}
     >
+
       {/* CABEÇALHO */}
       <View
         style={[
@@ -142,6 +158,7 @@ export default function Telemetria() {
         ]}
       >
         <View style={styles.headerInfo}>
+
           <Text style={styles.headerTitle}>
             EcoTrack 🌱
           </Text>
@@ -150,18 +167,23 @@ export default function Telemetria() {
             Módulo Telemetria — Osvaldo Cruz, SP
           </Text>
 
-          <View style={styles.userBadge}>
+          {/* BOTÃO DO USUÁRIO */}
+          <TouchableOpacity
+            style={styles.userBadge}
+            onPress={handleLogout}
+          >
             <Text style={styles.userBadgeText}>
               👤 {nomeUsuario}
             </Text>
-          </View>
+          </TouchableOpacity>
+
         </View>
 
+        {/* TEMA */}
         <View style={styles.themeToggleContainer}>
+
           <Text style={styles.toggleLabel}>
-            {isDarkMode
-              ? '🌙 Dark'
-              : '☀️ Light'}
+            {isDarkMode ? '🌙 Dark' : '☀️ Light'}
           </Text>
 
           <Switch
@@ -177,6 +199,7 @@ export default function Telemetria() {
                 : '#FFFFFF'
             }
           />
+
         </View>
       </View>
 
@@ -187,13 +210,14 @@ export default function Telemetria() {
           activeTheme.introBox,
         ]}
       >
-        <View style={styles.logoCircle}>
-          <Text style={styles.logoEmoji}>
-            🌱
-          </Text>
-        </View>
+
+        <Image
+          source={require('../img/ecotrack.jpg')}
+          style={styles.introImage}
+        />
 
         <View style={styles.introTextWrapper}>
+
           <Text
             style={[
               styles.introTitle,
@@ -209,14 +233,14 @@ export default function Telemetria() {
               activeTheme.subText,
             ]}
           >
-            O EcoTrack conecta você aos
-            Ecopontos comunitários de
-            Osvaldo Cruz - SP. Utilize o
-            GPS para mapear locais de
-            triagem e use o acelerômetro
-            para validar fisicamente cada
-            descarte efetuado.
+            O EcoTrack conecta você aos Ecopontos
+            comunitários de Osvaldo Cruz - SP.
+            Utilize o GPS para mapear locais de
+            triagem e use o acelerômetro para
+            validar fisicamente cada descarte
+            efetuado.
           </Text>
+
         </View>
       </View>
 
@@ -227,6 +251,7 @@ export default function Telemetria() {
           activeTheme.card,
         ]}
       >
+
         <Text
           style={[
             styles.cardTitle,
@@ -236,8 +261,8 @@ export default function Telemetria() {
           📡 Sensores de Hardware
         </Text>
 
-        {/* GPS */}
         <View style={styles.locationWrapper}>
+
           <Text
             style={[
               styles.labelField,
@@ -253,6 +278,7 @@ export default function Telemetria() {
               activeTheme.geoBox,
             ]}
           >
+
             <Text
               style={[
                 styles.geoText,
@@ -267,13 +293,13 @@ export default function Telemetria() {
                   )}`
                 : '🛰️ Buscando sinal de GPS...'}
             </Text>
+
           </View>
         </View>
 
         {/* ACELERÔMETRO */}
-        <View
-          style={styles.sensorStatusWrapper}
-        >
+        <View style={styles.sensorStatusWrapper}>
+
           <Text
             style={[
               styles.labelField,
@@ -287,19 +313,19 @@ export default function Telemetria() {
             style={[
               styles.sensorStatusText,
               {
-                color:
-                  movimentoStatus.includes('♻️')
-                    ? '#10B981'
-                    : '#64748B',
+                color: movimentoStatus.includes('♻️')
+                  ? '#10B981'
+                  : '#64748B',
               },
             ]}
           >
             {movimentoStatus}
           </Text>
+
         </View>
       </View>
 
-      {/* BOTÃO */}
+      {/* BOTÃO PARA REGISTRO */}
       <TouchableOpacity
         style={styles.btnNavigate}
         onPress={() => router.push('/registro')}
@@ -308,11 +334,23 @@ export default function Telemetria() {
           Ir para Novo Registro ✍️
         </Text>
       </TouchableOpacity>
+
+      {/* BOTÃO PARA ECOPONTOS */}
+      <TouchableOpacity
+        style={styles.btnEcopontos}
+        onPress={() => router.push('/ecopontos')}
+      >
+        <Text style={styles.btnEcopontosText}>
+          📍 Conhecer os Ecopontos
+        </Text>
+      </TouchableOpacity>
+
     </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
+
   centerContainer: {
     flex: 1,
     justifyContent: 'center',
@@ -330,6 +368,7 @@ const styles = StyleSheet.create({
     paddingBottom: 30,
   },
 
+  // CABEÇALHO
   headerContainer: {
     padding: 24,
     borderRadius: 20,
@@ -357,9 +396,9 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
 
+  // BOTÃO DO USUÁRIO
   userBadge: {
-    backgroundColor:
-      'rgba(255,255,255,0.2)',
+    backgroundColor: 'rgba(255,255,255,0.2)',
     paddingVertical: 4,
     paddingHorizontal: 10,
     borderRadius: 20,
@@ -373,10 +412,10 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
 
+  // TEMA
   themeToggleContainer: {
     alignItems: 'center',
-    backgroundColor:
-      'rgba(0,0,0,0.05)',
+    backgroundColor: 'rgba(0,0,0,0.05)',
     padding: 10,
     borderRadius: 16,
   },
@@ -388,6 +427,7 @@ const styles = StyleSheet.create({
     marginBottom: 6,
   },
 
+  // BANNER
   introCard: {
     borderRadius: 24,
     marginBottom: 20,
@@ -404,18 +444,12 @@ const styles = StyleSheet.create({
     shadowRadius: 6,
   },
 
-  logoCircle: {
-    width: 90,
-    height: 90,
-    borderRadius: 45,
-    backgroundColor: '#E6F4EA',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 12,
-  },
-
-  logoEmoji: {
-    fontSize: 48,
+  introImage: {
+    width: '100%',
+    height: 180,
+    resizeMode: 'cover',
+    borderRadius: 18,
+    marginBottom: 14,
   },
 
   introTextWrapper: {
@@ -435,6 +469,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
 
+  // CARD
   card: {
     padding: 20,
     borderRadius: 20,
@@ -484,6 +519,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
 
+  // BOTÃO NOVO REGISTRO
   btnNavigate: {
     backgroundColor: '#10B981',
     padding: 16,
@@ -497,9 +533,26 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     fontSize: 15,
   },
+
+  // BOTÃO ECOPONTOS
+  btnEcopontos: {
+    backgroundColor: '#047857',
+    padding: 16,
+    borderRadius: 16,
+    alignItems: 'center',
+    marginTop: 10,
+  },
+
+  btnEcopontosText: {
+    color: '#FFFFFF',
+    fontWeight: '700',
+    fontSize: 15,
+  },
+
 });
 
 const lightTheme = StyleSheet.create({
+
   wrapper: {
     backgroundColor: '#F4FBF7',
   },
@@ -540,9 +593,11 @@ const lightTheme = StyleSheet.create({
   geoTextContent: {
     color: '#064E3B',
   },
+
 });
 
 const darkTheme = StyleSheet.create({
+
   wrapper: {
     backgroundColor: '#022C22',
   },
@@ -583,4 +638,5 @@ const darkTheme = StyleSheet.create({
   geoTextContent: {
     color: '#34D399',
   },
+
 });
