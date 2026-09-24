@@ -4,13 +4,14 @@
 * **Curso:** Habilitação Profissional Técnica de Nível Médio em Desenvolvimento de Sistemas
 * **Unidade Curricular:** Programação para Dispositivos Móveis (PPDM)
 * **Instituição:** SENAI-SP
-* **Equipe:** [Adicione os Nomes dos Integrantes Aqui]
-* **Turma:** [Adicione a sua Turma Aqui]
+* **Equipe:** Beatriz, Raíssa e Maria Fernanda.
+* **Turma:** DEV2 - 3°EM
 
 ---
 
 ## 🔎 Problema e Solução
 * **Problema:** A falta de triagem adequada e o desconhecimento dos pontos exatos onde materiais recicláveis pesados são descartados dificultam a coleta eficiente pelas cooperativas locais.
+* 
 * **Solução:** O **EcoTrack** é uma solução móvel que permite registrar pontos exatos de descarte reciclável de forma offline. O usuário captura a foto do lote, insere o peso estimado, armazena a localização exata por GPS e utiliza o acelerômetro para monitorar o status do dispositivo em tempo real durante o percurso de triagem.
 
 ---
@@ -74,13 +75,13 @@ Siga as instruções abaixo no terminal para rodar o projeto localmente:
 git clone https://github.com
 
 # 2. Acesse a pasta raiz criada
-cd NOME_DO_REPOSITORIO
+cd EcoTrack-
 
 # 3. Instale as dependências estruturais do ecossistema Expo SDK 57
 npm install
 
 # 4. Inicie o servidor do Expo utilizando o modo obrigatório TUNNEL
-npx expo start --tunnel
+npm run web
 ```
 
 ⚠️ **Atenção Técnica Crítica:** Escaneie o QR Code gerado na tela utilizando o aplicativo **Expo Go** em seu smartphone físico Android ou iOS. Não utilize a execução web (`--web`), pois recursos nativos de SQLite e Sensores de Hardware exigem o ecossistema mobile real para funcionar sem exceções.
